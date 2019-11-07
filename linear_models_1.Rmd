@@ -79,3 +79,61 @@ fit %>%
 ```
 
 
+## Diagnostics! >>> ALL ABOUT RESIDUALS
+```{r}
+
+modelr::add_residuals(nyc_airbnb, fit)  #adding residuals to my model
+
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = boro, y = resid)) + geom_violin() +
+  ylim(-500, 500)
+
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = stars, y = resid)) + geom_point()
+```
+
+## fitted values (predicted values)
+```{r}
+
+modelr::add_predictions(nyc_airbnb, fit)
+```
+
+## nesting
+We love nesting! <3
+
+```{r}
+fit_interaction = lm(price ~ stars * boro + room_type * boro, data = nyc_airbnb)  # * gives ud interaction!
+
+nyc_airbnb %>% 
+  filter(boro == "Brooklyn") %>% 
+  lm (price ~ stars + room_type, data = .) %>% 
+  broom::tidy()
+```
+
+# try mapping!!!
+```{r}
+
+nyc_airbnb %>% 
+  nest(data = -boro) %>% 
+  mutate(
+    models = map(.x = data, ~lm(price ~ stars + room_type, data = .x)),
+    results = map (models, broom::tidy)
+  ) %>% 
+  select(boro, results) %>% 
+  unnest(results)
+```
+
+# let's nest neighborhoods
+```{r}
+
+nyc_airbnb %>% 
+  filter(boro == "Manhattan") %>% 
+  nest(data = -neighborhood) %>% 
+  mutate(
+    models = map(.x = data, ~lm(price ~ stars + room_type, data = .x)),
+    results = map (models, broom::tidy)
+  ) %>% 
+  select(neighborhood, results) %>% 
+  unnest(results)
+```
+

@@ -154,3 +154,88 @@ fit %>%
     ##       <dbl>         <dbl> <dbl>     <dbl>     <dbl> <int>   <dbl>  <dbl>
     ## 1    0.0342        0.0341  182.      271. 6.73e-229     5 -2.02e5 4.04e5
     ## # ... with 3 more variables: BIC <dbl>, deviance <dbl>, df.residual <int>
+
+## Diagnostics\! \>\>\> ALL ABOUT RESIDUALS
+
+``` r
+modelr::add_residuals(nyc_airbnb, fit)  #adding residuals to my model
+```
+
+    ## # A tibble: 40,492 x 6
+    ##    price stars boro  neighborhood room_type        resid
+    ##    <dbl> <dbl> <fct> <chr>        <fct>            <dbl>
+    ##  1    99   5   Bronx City Island  Private room      9.47
+    ##  2   200  NA   Bronx City Island  Private room     NA   
+    ##  3   300  NA   Bronx City Island  Entire home/apt  NA   
+    ##  4   125   5   Bronx City Island  Entire home/apt  35.5 
+    ##  5    69   5   Bronx City Island  Private room    -20.5 
+    ##  6   125   5   Bronx City Island  Entire home/apt  35.5 
+    ##  7    85   5   Bronx City Island  Entire home/apt  -4.53
+    ##  8    39   4.5 Bronx Allerton     Private room    -34.5 
+    ##  9    95   5   Bronx Allerton     Entire home/apt   5.47
+    ## 10   125   4.5 Bronx Allerton     Entire home/apt  51.5 
+    ## # ... with 40,482 more rows
+
+``` r
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = boro, y = resid)) + geom_violin() +
+  ylim(-500, 500)
+```
+
+    ## Warning: Removed 10202 rows containing non-finite values (stat_ydensity).
+
+![](linear_models_1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+modelr::add_residuals(nyc_airbnb, fit) %>% 
+  ggplot(aes(x = stars, y = resid)) + geom_point()
+```
+
+    ## Warning: Removed 9962 rows containing missing values (geom_point).
+
+![](linear_models_1_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+## fitted values (predicted values)
+
+``` r
+modelr::add_predictions(nyc_airbnb, fit)
+```
+
+    ## # A tibble: 40,492 x 6
+    ##    price stars boro  neighborhood room_type        pred
+    ##    <dbl> <dbl> <fct> <chr>        <fct>           <dbl>
+    ##  1    99   5   Bronx City Island  Private room     89.5
+    ##  2   200  NA   Bronx City Island  Private room     NA  
+    ##  3   300  NA   Bronx City Island  Entire home/apt  NA  
+    ##  4   125   5   Bronx City Island  Entire home/apt  89.5
+    ##  5    69   5   Bronx City Island  Private room     89.5
+    ##  6   125   5   Bronx City Island  Entire home/apt  89.5
+    ##  7    85   5   Bronx City Island  Entire home/apt  89.5
+    ##  8    39   4.5 Bronx Allerton     Private room     73.5
+    ##  9    95   5   Bronx Allerton     Entire home/apt  89.5
+    ## 10   125   4.5 Bronx Allerton     Entire home/apt  73.5
+    ## # ... with 40,482 more rows
+
+## nesting
+
+We love nesting\!
+\<3
+
+``` r
+fit_interaction = lm(price ~ stars * boro + room_type * boro, data = nyc_airbnb)  # * gives ud interaction!
+
+nyc_airbnb %>% 
+  filter(boro == "Brooklyn") %>% 
+  lm (price ~ stars + room_type, data = .) %>% 
+  broom::tidy()
+```
+
+    ## # A tibble: 4 x 5
+    ##   term                  estimate std.error statistic   p.value
+    ##   <chr>                    <dbl>     <dbl>     <dbl>     <dbl>
+    ## 1 (Intercept)               69.6     14.0       4.96 7.27e-  7
+    ## 2 stars                     21.0      2.98      7.05 1.90e- 12
+    ## 3 room_typePrivate room    -92.2      2.72    -34.0  6.40e-242
+    ## 4 room_typeShared room    -106.       9.43    -11.2  4.15e- 29
+
+# try mapping\!\!\!
