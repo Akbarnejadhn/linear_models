@@ -1,0 +1,58 @@
+---
+title: "linear_models_1"
+author: "Hana Akbarnejad"
+date: "11/7/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(p8105.datasets)
+
+set.seed(1)
+```
+
+```{r}
+
+data("nyc_airbnb")
+
+nyc_airbnb = 
+  nyc_airbnb %>% 
+  mutate(stars = review_scores_location / 2) %>% 
+  rename(
+    boro = neighbourhood_group,
+    neighborhood = neighbourhood) %>% 
+  filter(boro != "Staten Island") %>% 
+  select(price, stars, boro, neighborhood, room_type)
+```
+
+** price as an outcome that may depend on rating and borough.**
+
+## fit the first linear model
+```{r}
+
+fit = lm(price ~ stars + boro, data = nyc_airbnb)
+```
+If I have not specify my factor orders, it will assume categorically and chooses the reference according to that! (btonx)
+
+```{r}
+fit
+
+summary(fit)
+
+coef(fit) #extracting coefficients
+
+summary(fit)$coef
+```
+
+tidy the results instead!:
+```{r}
+fit %>% 
+  broom::tidy() %>% 
+  mutate(term = str_replace(term, "boro", "Boro: ")
+  ) %>% 
+  knitr::kable(digits = 3)
+```
+
