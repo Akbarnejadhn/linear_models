@@ -126,7 +126,7 @@ nyc_airbnb %>%
 # let's nest neighborhoods
 ```{r}
 
-nyc_airbnb %>% 
+manhattan_nested_lm = nyc_airbnb %>% 
   filter(boro == "Manhattan") %>% 
   nest(data = -neighborhood) %>% 
   mutate(
@@ -137,3 +137,18 @@ nyc_airbnb %>%
   unnest(results)
 ```
 
+## plotting nested stuff!
+```{r}
+
+manhattan_nested_lm %>% 
+  filter(str_detect(term, "room_type")) %>% 
+  ggplot(aes(x = neighborhood, y = estimate)) + 
+  geom_point() + 
+  facet_wrap(~term) + 
+  theme(axis.text.x = element_text(angle = 80, hjust = 1))
+```
+They are all negative which means it generally costs you less if you go to a private room instead of whole house/apartment.
+
+nesting is not the answer to all questions!
+
+we can fit things with binary outcomes instead of continuous outcomes. using binomial. for example, homicide cases as resolved/not resolves! look at the course website.
