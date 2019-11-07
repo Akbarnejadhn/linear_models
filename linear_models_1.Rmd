@@ -56,3 +56,26 @@ fit %>%
   knitr::kable(digits = 3)
 ```
 
+## take a look at factors:
+```{r}
+
+nyc_airbnb = nyc_airbnb %>% 
+  mutate(
+    boro = fct_infreq(boro),
+    room_type = fct_infreq(room_type)
+  )
+```
+
+## now if we fit, we'll have different output! because our reference has been manipulated by changing the factors.
+```{r}
+
+fit = lm(price ~ stars + boro, data = nyc_airbnb)
+
+summary(fit)
+
+# can use glance instead of tidy in broom::
+fit %>% 
+  broom::glance()  #p_value here is not very useful because it is global, but p_value in broom::tidy is pairwise and useful!
+```
+
+
